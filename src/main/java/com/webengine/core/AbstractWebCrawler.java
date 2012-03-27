@@ -2,12 +2,9 @@ package com.webengine.core;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.PrettyHtmlSerializer;
@@ -17,18 +14,7 @@ import com.webengine.utils.URLStringUtils;
 
 public abstract class AbstractWebCrawler {
 	
-	public String dominio = "sydle.com";
-
-	public List<String> tested = new ArrayList<String>();
-	
-	public final String COPY_DIR = "work/";
-	
-	public static final Map<String, String[]> map = new HashMap<String, String[]>() {
-		{
-			put("src", new String[] { "http://www.sydle.com/br/", "/home/bruno/Java/Powerlogic/Jaguar601/workspace/webengine/work/www.sydle.com/br/" });
-			put("href", new String[] { "http://www.sydle.com/br/", "/home/bruno/Java/Powerlogic/Jaguar601/workspace/webengine/work/www.sydle.com/br/" });
-		}
-	};
+	public final String COPY_DIR = "/home/bruno/Java/Powerlogic/Jaguar601/servers/tomcat/webapps/slideshow/work/";
 	
 	public void read(String url) {
 		try {
@@ -40,8 +26,8 @@ public abstract class AbstractWebCrawler {
 			final HtmlCleaner cleaner = new HtmlCleaner(props);
 
 			TagNode dom = cleaner.clean(new URL(url));
-			tested.add(url);
-			for (String attr : map.keySet()) {
+			tested(url);
+			for (String attr : getMap().keySet()) {
 				Object[] tags = dom.evaluateXPath("//*[@" + attr + "]");
 				for (Object o : tags) {
 					try {
@@ -53,12 +39,20 @@ public abstract class AbstractWebCrawler {
 									continue;
 								if (href.startsWith("/"))
 									href = url + href;
-								if (href.contains(dominio) && !tested.contains(href))
+								else if(!href.startsWith("http://")){
+									href = url +"/"+ href;
+								}
+								if (href.contains(getDominio()) && !wasTested(href))
 									deepRead(href);
 
-							} else {
+							}
+							else {
 								String src = tag.getAttributeByName("src");
-								if(src !=null && src.contains(dominio)){
+								if(src==null || src.equals("")){
+									//link stylesheet
+									src = tag.getAttributeByName("href");
+								}
+								if(src !=null && src.contains(getDominio())){
 									if (src.startsWith("/") && src.length() == 1)
 										continue;
 									if (src.startsWith("/"))
@@ -66,7 +60,7 @@ public abstract class AbstractWebCrawler {
 									copyFile(src);
 								}
 							}
-							tag.getAttributes().put(attr, rewrite(tag.getAttributes().get(attr), map.get(attr)[0],map.get(attr)[1]));
+							tag.getAttributes().put(attr, rewrite(tag.getAttributes().get(attr), getMap().get(attr)[0],getMap().get(attr)[1]));
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -74,7 +68,7 @@ public abstract class AbstractWebCrawler {
 					}
 				}
 			}
-			FileUtils.forceMkdir(new File(COPY_DIR+ URLStringUtils.getFullPathFile(url)));
+			new File(COPY_DIR+ URLStringUtils.getFullPathFile(url)).mkdirs();
 			new PrettyHtmlSerializer(props).writeToFile(dom,COPY_DIR+ URLStringUtils.getFullPathFile(url)+ "/index.html");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -100,5 +94,11 @@ public abstract class AbstractWebCrawler {
 	
 	protected abstract void copyFile(String url) throws Exception;
 	
+	protected abstract void tested(String url) throws Exception;
 	
+	protected abstract boolean wasTested(String url) throws Exception;
+	
+	protected abstract String getDominio() throws Exception;
+	
+	protected abstract  Map<String, String[]> getMap() throws Exception;
 }
