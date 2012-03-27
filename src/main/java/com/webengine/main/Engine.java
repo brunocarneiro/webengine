@@ -1,3 +1,4 @@
+package com.webengine.main;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -11,14 +12,16 @@ import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.PrettyHtmlSerializer;
 import org.htmlcleaner.TagNode;
 
-import utils.URLStringUtils;
+import com.webengine.utils.URLStringUtils;
+
+
 
 public class Engine {
 
 	public static final Map<String, String[]> map = new HashMap<String, String[]>() {
 		{
-			put("src", new String[] { "http://", "https://" });
-			put("href", new String[] { "http://", "https://" });
+			put("src", new String[] { "http://www.sambatech.com", "/home/bruno/Java/Powerlogic/Jaguar601/workspace/webengine/work/www.sambatech.com" });
+			put("href", new String[] { "http://www.sambatech.com", "/home/bruno/Java/Powerlogic/Jaguar601/workspace/webengine/work/www.sambatech.com" });
 		}
 	};
 
@@ -52,7 +55,7 @@ public class Engine {
 									continue;
 								if (href.startsWith("/"))
 									href = url + href;
-								if (href.contains(dominio) && !tested.contains(url))
+								if (href.contains(dominio) && !tested.contains(href))
 									test(href);
 
 							} else {
@@ -74,7 +77,7 @@ public class Engine {
 				}
 			}
 
-			new PrettyHtmlSerializer(props).writeToFile(dom,COPY_DIR+ dominio+ "/index.html");
+			new PrettyHtmlSerializer(props).writeToFile(dom,COPY_DIR+ URLStringUtils.getFullPathFile(url)+ "/index.html");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -83,9 +86,9 @@ public class Engine {
 	private static String rewrite(String toReplace, String startsWith,
 			String replaceBy) {
 		// tem que ser configurado no mapa
-		// if(toReplace.startsWith("/")){
-		// }
-		// else
+		if(toReplace.startsWith("/")){
+		}
+		else
 		if (toReplace.startsWith(startsWith))
 			toReplace = toReplace.substring(startsWith.length());
 		else
@@ -99,8 +102,8 @@ public class Engine {
 	}
 	
 	public static void main(String[] args) {
-		dominio = "anapaulalobato.com";
-		test("http://anapaulalobato.com");
+		dominio = "sambatech.com";
+		test("http://www.sambatech.com");
 	}
 
 }

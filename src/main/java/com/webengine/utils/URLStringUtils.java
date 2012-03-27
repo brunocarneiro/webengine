@@ -1,4 +1,4 @@
-package utils;
+package com.webengine.utils;
 
 
 public class URLStringUtils {
@@ -16,6 +16,10 @@ public class URLStringUtils {
 	
 	public static String getFullPathFile(String u){
 		String [] array = u.split("/");
+		//pagina inicial
+		if(array.length==3){
+			return array[2];
+		}
 		return u.replace(array[array.length-1], "").replace("http://", "")+array[array.length-1];
 	}
 
