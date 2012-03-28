@@ -2,11 +2,14 @@ package com.webengine.core;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 
@@ -16,13 +19,16 @@ import com.webengine.utils.URLStringUtils;
 public class ParallelWebCrawler extends AbstractWebCrawler {
 
 	private static ParallelWebCrawler instance;
-	private ExecutorService executor = Executors.newCachedThreadPool();
+	private ExecutorService executor = new ThreadPoolExecutor(0, 500,
+            60L, TimeUnit.SECONDS,
+            new SynchronousQueue<Runnable>());
+	//Executors.newCachedThreadPool();
 	private List<String> tested;
 	private String dominio;
 	private Map<String, String[]> map;
 	
 	private ParallelWebCrawler(String dominio,Map<String, String[]> map) {
-		tested = new ArrayList<String>();
+		tested = new Vector<String>(); //must be Vector..synchronized
 		this.dominio = dominio;
 		this.map = map;
 	}
@@ -50,16 +56,12 @@ public class ParallelWebCrawler extends AbstractWebCrawler {
 
 	@Override
 	protected void tested(String url) throws Exception {
-		synchronized (this) {
-			tested.add(url);
-		}
+		tested.add(url);
 	}
 
 	@Override
 	protected boolean wasTested(String url) throws Exception {
-		synchronized (this) {
-			return tested.contains(url);
-		}
+		return tested.contains(url);
 	}
 
 	@Override

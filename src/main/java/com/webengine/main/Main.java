@@ -7,12 +7,12 @@ import com.webengine.core.ParallelWebCrawler;
 public class Main {
 	
 	public static void main (String [] args){
-		ParallelWebCrawler.getInstance("powerlogic.org", new HashMap<String, String[]>() {
+		ParallelWebCrawler.getInstance("sambatech.com.br", new HashMap<String, String[]>() {
 			{
-				put("src", new String[] { "http://www.powerlogic.org", "http://localhost:8080/slideshow/work/www.powerlogic.org" });
-				put("href", new String[] { "http://www.powerlogic.org", "http://localhost:8080/slideshow/work/www.powerlogic.org" });
+				put("src", new String[] { "http://www.sambatech.com", "http://localhost:8080/slideshow/work/www.sambatech.com" });
+				put("href", new String[] { "http://www.sambatech.com", "http://localhost:8080/slideshow/work/www.sambatech.com" });
 			}
-		}).start("http://www.powerlogic.org");
+		}).start("http://www.sambatech.com.br/");
 	}
 
 }

@@ -39,10 +39,10 @@ public abstract class AbstractWebCrawler {
 									continue;
 								if (href.startsWith("/"))
 									href = url + href;
-								else if(!href.startsWith("http://")){
-									href = url +"/"+ href;
+								else if(!href.startsWith("http://")&& !href.startsWith("https://")){
+									href = "http://"+URLStringUtils.getLocalPath(url) +"/"+ href;
 								}
-								if (href.contains(getDominio()) && !wasTested(href))
+								if (new URL(href).getHost().contains(getDominio()) && !wasTested(href))
 									deepRead(href);
 
 							}
@@ -52,11 +52,14 @@ public abstract class AbstractWebCrawler {
 									//link stylesheet
 									src = tag.getAttributeByName("href");
 								}
-								if(src !=null && src.contains(getDominio())){
+								if(src !=null ){ //&& src.contains(getDominio())){
 									if (src.startsWith("/") && src.length() == 1)
 										continue;
 									if (src.startsWith("/"))
 										src = url + src;
+									else if(!src.startsWith("http://") && !src.startsWith("https://")){
+										src = "http://"+URLStringUtils.getLocalPath(url) +"/"+ src;
+									}
 									copyFile(src);
 								}
 							}
@@ -87,7 +90,7 @@ public abstract class AbstractWebCrawler {
 		else
 			return toReplace;
 
-		return replaceBy += toReplace;
+		return replaceBy += "/"+toReplace;
 	}
 	
 	protected abstract void deepRead(String href) throws Exception;
